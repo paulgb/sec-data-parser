@@ -12,15 +12,26 @@ pub enum Token {
     TextData(String),
 }
 
+fn read_line(reader: &mut impl BufRead) -> Option<String> {
+    let mut line: String = Default::default();
+    let result = reader.read_line(&mut line).unwrap();
+
+    if result == 0 {
+        None
+    } else {
+        Some(line)
+    }
+}
+
 fn next_token(mut reader: &mut impl BufRead) -> error::Result<Option<Token>> {
-    let line = crate::read_line(&mut reader);
+    let line = read_line(&mut reader);
     if let Some(line) = line {
         let parsed = crate::parse::parse_line(&line.trim());
 
         Ok(Some(match parsed {
             ParsedLine::OpenTag("TEXT") => {
                 let mut body = String::new();
-                while let Some(v) = crate::read_line(&mut reader) {
+                while let Some(v) = read_line(&mut reader) {
                     if v == "</TEXT>\n" {
                         return Ok(Some(Token::TextData(body)));
                     } else {
