@@ -1,6 +1,6 @@
 use crate::tag::{ContainerTag, ValueTag};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     TagOpen(ContainerTag),
     TagClose(ContainerTag),

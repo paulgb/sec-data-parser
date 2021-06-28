@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use crate::tag::{ValueTag, ContainerTag};
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 
@@ -7,6 +8,8 @@ pub type Result<T> = std::result::Result<T, ParseError>;
 pub enum ParseError {
     InvalidValueTag(String),
     InvalidContainerTag(String),
+    UnexpectedEndOfInput(ContainerTag),
+    UnexpectedCloseTag(ContainerTag),
 }
 
 impl Display for ParseError {

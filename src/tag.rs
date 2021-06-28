@@ -1,7 +1,7 @@
 use crate::error::{ParseError, Result};
 use std::fmt::Debug;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ContainerTag {
     AcquiringData,
     BusinessAddress,
@@ -68,7 +68,7 @@ impl ContainerTag {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ValueTag {
     AbsAssetClass,
     AbsRule,

@@ -5,14 +5,53 @@ mod tokens;
 use std::fs::{read_dir, File};
 use std::io::{BufRead, BufReader};
 
-use crate::error::Result;
+use crate::error::{Result, ParseError};
 use crate::tag::{ContainerTag, ValueTag};
 use crate::tokens::Token;
+use std::collections::VecDeque;
+use crate::DocumentTree::ContainerNode;
 
 enum ParsedLine<'a> {
     TagOpen(&'a str),
     TagClose(&'a str),
     TagValue(&'a str, &'a str),
+}
+
+enum DocumentTree {
+    ContainerNode(ContainerTag, Vec<DocumentTree>),
+    ValueNode(ValueTag, String),
+    TextNode(String),
+    Empty,
+}
+
+fn parse_doc(tokens: &mut VecDeque<Token>) -> Result<DocumentTree> {
+    Ok(if let Some(token) = tokens.pop_front() {
+
+        match token {
+            Token::TagOpen(tag) => {
+                let mut parts = Vec::new();
+
+                while let Some(next_token) = tokens.front() {
+                    if next_token == &Token::TagClose(tag) {
+                        let t = tokens.pop_front();
+
+                        return Ok(ContainerNode(tag, parts))
+                    } else if let Token::TagClose(_) = next_token {
+                        return Ok(ContainerNode(tag, parts))
+                    } else {
+                        parts.push(parse_doc(tokens)?);
+                    }
+                }
+
+                return Err(ParseError::UnexpectedEndOfInput(tag))
+            }
+            Token::TagClose(tag) => return Err(ParseError::UnexpectedCloseTag(tag)),
+            Token::TagValue(tag, value) => DocumentTree::ValueNode(tag, value),
+            Token::TextData(text) => DocumentTree::TextNode(text)
+        }
+    } else {
+        DocumentTree::Empty
+    })
 }
 
 fn parse_line(line: &str) -> ParsedLine {
@@ -53,7 +92,7 @@ fn read_line(reader: &mut impl BufRead) -> Option<String> {
     }
 }
 
-fn next_token(mut reader: impl BufRead) -> Result<Option<Token>> {
+fn next_token(mut reader: &mut impl BufRead) -> Result<Option<Token>> {
     let line = read_line(&mut reader);
     if let Some(line) = line {
         let parsed = parse_line(&line.trim());
@@ -82,12 +121,10 @@ fn next_token(mut reader: impl BufRead) -> Result<Option<Token>> {
     }
 }
 
-fn tokenize_submission(mut submission: BufReader<File>) -> Vec<Token> {
+fn tokenize_submission(submission: &mut impl BufRead) -> Vec<Token> {
     let mut tokens = Vec::new();
 
-    while let Some(token) = next_token(&mut submission).unwrap() {
-        //println!("Token: {:?}", token);
-
+    while let Some(token) = next_token(submission).unwrap() {
         tokens.push(token);
     }
 
@@ -97,7 +134,10 @@ fn tokenize_submission(mut submission: BufReader<File>) -> Vec<Token> {
 fn main() {
     for file in read_dir("./data").unwrap() {
         let path = file.unwrap().path();
-        println!("{:?}", &path);
-        tokenize_submission(BufReader::new(File::open(path).unwrap()));
+        println!("Reading: {:?}", &path);
+
+        let mut reader = BufReader::new(File::open(path).unwrap());
+        let mut tokens = VecDeque::from(tokenize_submission(&mut reader));
+        let _doc = parse_doc(&mut tokens).unwrap();
     }
 }
