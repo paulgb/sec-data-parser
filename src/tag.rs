@@ -63,7 +63,7 @@ impl ContainerTag {
             "SUBMISSION" => ContainerTag::Submission,
             "TARGET-DATA" => ContainerTag::TargetData,
 
-            _ => Err(ParseError::InvalidContainerTag(tag.to_string()))?,
+            _ => return Err(ParseError::InvalidContainerTag(tag.to_string())),
         })
     }
 }
@@ -187,7 +187,7 @@ impl ValueTag {
             "STREET2" => ValueTag::Street2,
             "TYPE" => ValueTag::Type,
             "ZIP" => ValueTag::Zip,
-            _ => Err(ParseError::InvalidValueTag(tag.to_string()))?,
+            _ => return Err(ParseError::InvalidValueTag(tag.to_string())),
         })
     }
 }

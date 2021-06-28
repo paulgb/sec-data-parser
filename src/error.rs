@@ -1,6 +1,6 @@
+use crate::tag::ContainerTag;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
-use crate::tag::{ValueTag, ContainerTag};
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 
