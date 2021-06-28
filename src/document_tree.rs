@@ -6,6 +6,7 @@ use crate::error::ParseError;
 use crate::tag::{ContainerTag, ValueTag};
 use crate::tokens::Token;
 
+#[derive(Debug)]
 pub enum DocumentTree {
     ContainerNode(ContainerTag, Vec<DocumentTree>),
     ValueNode(ValueTag, String),

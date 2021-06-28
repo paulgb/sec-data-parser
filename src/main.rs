@@ -1,3 +1,6 @@
+use crate::document_tree::DocumentTree;
+use crate::schema::Submission;
+use crate::tag::ContainerTag;
 use std::collections::VecDeque;
 use std::fs::{read_dir, File};
 use std::io::BufReader;
@@ -5,8 +8,10 @@ use std::io::BufReader;
 mod document_tree;
 mod error;
 mod parse;
+mod schema;
 mod tag;
 mod tokens;
+mod types;
 
 fn main() {
     for file in read_dir("./data").unwrap() {
@@ -15,6 +20,12 @@ fn main() {
 
         let mut reader = BufReader::new(File::open(path).unwrap());
         let mut tokens = VecDeque::from(tokens::tokenize_submission(&mut reader));
-        let _doc = document_tree::parse_doc(&mut tokens).unwrap();
+        if let Ok(DocumentTree::ContainerNode(ContainerTag::Submission, parts)) =
+            document_tree::parse_doc(&mut tokens)
+        {
+            let submission = Submission::from_parts(&parts);
+        } else {
+            panic!("here1");
+        }
     }
 }
