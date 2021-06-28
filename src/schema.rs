@@ -584,7 +584,7 @@ pub struct Submission {
     effectiveness_date: Option<NaiveDate>,
     period: Option<NaiveDate>,
     filer: Option<Filer>,
-    document: Option<Document>,
+    document: Vec<Document>,
     series_and_classes_contracts_data: Option<SeriesAndClassesContractsData>,
     reporting_owner: Option<Filer>,
     issuer: Option<Filer>,
@@ -618,13 +618,13 @@ impl Submission {
     pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
         let mut accession_number = None;
         let mut filing_type = None;
-        let mut public_document_count: Option<u32> = None;
+        let mut public_document_count: usize = 0;
         let mut items = None;
         let mut filing_date = None;
         let mut date_of_filing_date_change = None;
         let mut effectiveness_date = None;
         let mut filer = None;
-        let mut document = None;
+        let mut document = Vec::new();
         let mut series_and_classes_contracts_data = None;
         let mut period = None;
         let mut reporting_owner = None;
@@ -664,7 +664,7 @@ impl Submission {
                         filing_type = Some(value.clone());
                     }
                     ValueTag::PublicDocumentCount => {
-                        public_document_count = Some(value.parse().unwrap());
+                        public_document_count = value.parse().unwrap();
                     }
                     ValueTag::Items => {
                         items = Some(value.clone());
@@ -750,7 +750,8 @@ impl Submission {
                         filer = Some(Filer::from_parts(parts)?);
                     }
                     ContainerTag::Document => {
-                        document = Some(Document::from_parts(parts)?);
+                        let d = Document::from_parts(parts)?;
+                        document.push(d);
                     }
                     ContainerTag::SeriesAndClassesContractsData => {
                         series_and_classes_contracts_data = Some(SeriesAndClassesContractsData::from_parts(parts)?);
@@ -781,6 +782,8 @@ impl Submission {
                 _ => panic!("Unexpected: {:?}", &part),
             }
         }
+
+        assert_eq!(public_document_count, document.len());
 
         Ok(Submission {
             accession_number,
