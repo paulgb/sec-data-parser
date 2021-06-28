@@ -1,7 +1,8 @@
 use std::io::BufRead;
 
+use crate::error;
+use crate::parse::ParsedLine;
 use crate::tag::{ContainerTag, ValueTag};
-use crate::{error, ParsedLine};
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
@@ -14,7 +15,7 @@ pub enum Token {
 fn next_token(mut reader: &mut impl BufRead) -> error::Result<Option<Token>> {
     let line = crate::read_line(&mut reader);
     if let Some(line) = line {
-        let parsed = crate::parse_line(&line.trim());
+        let parsed = crate::parse::parse_line(&line.trim());
 
         Ok(Some(match parsed {
             ParsedLine::OpenTag("TEXT") => {
