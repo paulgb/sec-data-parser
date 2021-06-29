@@ -50,6 +50,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "num-traits",
+ "uuencode",
 ]
 
 [[package]]
@@ -62,6 +63,12 @@ dependencies = [
  "wasi",
  "winapi",
 ]
+
+[[package]]
+name = "uuencode"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce87414615a82bde6978712c15b79bf056d16827930ff779f1e40ed74c692ac0"
 
 [[package]]
 name = "wasi"

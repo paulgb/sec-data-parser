@@ -5,6 +5,7 @@ use std::collections::VecDeque;
 use std::fs::{read_dir, File};
 use std::io::BufReader;
 
+mod document_body;
 mod document_tree;
 mod error;
 mod parse;

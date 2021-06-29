@@ -1,10 +1,10 @@
+use crate::document_body::{DocumentBody, TypedData};
 use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
-use crate::types::{parse_bool, MonthDayPair, parse_date};
+use crate::types::{parse_bool, parse_date, MonthDayPair};
 use chrono::NaiveDate;
-
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FilingValues {
@@ -291,7 +291,7 @@ pub struct Document {
     doc_type: String,
     sequence: u32,
     filename: String,
-    text: String, // TODO: parse
+    body: Option<TypedData>, // TODO: parse
     description: Option<String>,
 }
 
@@ -300,7 +300,7 @@ impl Document {
         let mut doc_type = None;
         let mut sequence = None;
         let mut filename = None;
-        let mut text = None;
+        let mut body = None;
         let mut description = None;
 
         for part in parts {
@@ -324,7 +324,7 @@ impl Document {
                     }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
-                DocumentTree::TextNode(t) => text = Some(t.clone()),
+                DocumentTree::TextNode(t) => body = Some(TypedData::from_string(t)),
                 _ => panic!("Unexpected: {:?}", &part),
             }
         }
@@ -333,7 +333,7 @@ impl Document {
             doc_type: doc_type.unwrap(),
             sequence: sequence.unwrap(),
             filename: filename.unwrap(),
-            text: text.unwrap(),
+            body,
             description,
         })
     }
@@ -693,13 +693,11 @@ impl Submission {
                     }
                     ValueTag::DateOfFilingDateChange => {
                         assert!(date_of_filing_date_change.is_none());
-                        date_of_filing_date_change =
-                            Some(parse_date(value));
+                        date_of_filing_date_change = Some(parse_date(value));
                     }
                     ValueTag::EffectivenessDate => {
                         assert!(effectiveness_date.is_none());
-                        effectiveness_date =
-                            Some(parse_date(value));
+                        effectiveness_date = Some(parse_date(value));
                     }
                     ValueTag::Period => {
                         assert!(period.is_none());
@@ -734,8 +732,7 @@ impl Submission {
                     }
                     ValueTag::ReceivedDate => {
                         assert!(received_date.is_none());
-                        received_date =
-                            Some(parse_date(value));
+                        received_date = Some(parse_date(value));
                     }
                     ValueTag::MaIIndividual => {
                         assert!(ma_i_individual.is_none());
