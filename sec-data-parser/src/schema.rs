@@ -3,8 +3,8 @@ use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
-use crate::types::{parse_bool, parse_date, MonthDayPair};
-use chrono::NaiveDate;
+use crate::types::{parse_bool, parse_date, MonthDayPair, parse_date_time};
+use chrono::{NaiveDate, NaiveDateTime};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FilingValues {
@@ -534,11 +534,13 @@ impl Merger {
 pub struct NewSeriesAndClassesContracts {
     pub owner_cik: Option<String>,
     pub new_series: Vec<Series>,
+    pub new_classes_contract: Vec<Series>,
 }
 
 impl NewSeriesAndClassesContracts {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut new_series = Vec::new();
+        let mut new_classes_contract = Vec::new();
         let mut owner_cik = None;
 
         for part in parts {
@@ -549,8 +551,10 @@ impl NewSeriesAndClassesContracts {
                 }
                 DocumentTree::ContainerNode(tag, parts) => match tag {
                     ContainerTag::NewSeries => {
-                        let s = Series::from_parts(parts)?;
-                        new_series.push(s);
+                        new_series.push(Series::from_parts(parts)?);
+                    }
+                    ContainerTag::NewClassesContracts => {
+                        new_classes_contract.push(Series::from_parts(parts)?);
                     }
                     _ => unimplemented!("{:?}", tag),
                 },
@@ -561,6 +565,7 @@ impl NewSeriesAndClassesContracts {
         Ok(NewSeriesAndClassesContracts {
             new_series,
             owner_cik,
+            new_classes_contract,
         })
     }
 }
@@ -706,6 +711,13 @@ pub struct Submission {
     pub confirming_copy: bool,
     pub securitizer_file_number: Option<String>,
     pub depositor_file_number: Option<String>,
+    pub timestamp: Option<NaiveDateTime>,
+    pub private_to_public: bool,
+    pub filed_for: Vec<Company>,
+    pub public_reference_acc: Option<String>,
+    pub public_rel_date: Option<NaiveDate>,
+    pub deletion: bool,
+    pub correction: bool,
 }
 
 impl Submission {
@@ -753,6 +765,13 @@ impl Submission {
         let mut confirming_copy = false;
         let mut securitizer_file_number = None;
         let mut depositor_file_number = None;
+        let mut timestamp = None;
+        let mut private_to_public = false;
+        let mut filed_for = Vec::new();
+        let mut public_reference_acc = None;
+        let mut public_rel_date = None;
+        let mut deletion = false;
+        let mut correction = false;
 
         for part in parts {
             match &part {
@@ -887,6 +906,24 @@ impl Submission {
                     ValueTag::DepositorFileNumber => {
                         depositor_file_number = Some(value.clone());
                     }
+                    ValueTag::Timestamp => {
+                        timestamp = Some(parse_date_time(value));
+                    }
+                    ValueTag::PrivateToPublic => {
+                        private_to_public = true;
+                    }
+                    ValueTag::PublicReferenceAcc => {
+                        public_reference_acc = Some(value.clone());
+                    }
+                    ValueTag::PublicRelDate => {
+                        public_rel_date = Some(parse_date(value));
+                    }
+                    ValueTag::Deletion => {
+                        deletion = true;
+                    }
+                    ValueTag::Correction => {
+                        correction = true;
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
@@ -927,13 +964,14 @@ impl Submission {
                         assert!(securitizer.is_none());
                         securitizer = Some(Company::from_parts(parts)?);
                     }
+                    ContainerTag::FiledFor => {
+                        filed_for.push(Company::from_parts(parts)?);
+                    }
                     _ => unimplemented!("{:?}", tag),
                 },
                 _ => panic!("Unexpected: {:?}", &part),
             }
         }
-
-        assert_eq!(public_document_count, documents.len());
 
         Ok(Submission {
             accession_number: accession_number.unwrap(),
@@ -978,6 +1016,13 @@ impl Submission {
             confirming_copy,
             securitizer_file_number,
             depositor_file_number,
+            timestamp,
+            private_to_public,
+            filed_for,
+            public_reference_acc,
+            public_rel_date,
+            deletion,
+            correction,
         })
     }
 }

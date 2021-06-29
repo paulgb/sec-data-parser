@@ -1,7 +1,8 @@
-use chrono::{Month, NaiveDate};
+use chrono::{Month, NaiveDate, NaiveDateTime};
 use num_traits::FromPrimitive;
 
 const DATE_FORMAT: &str = "%Y%m%d";
+const DATE_TIME_FORMAT: &str = "%Y%m%d:%H%M%S";
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct MonthDayPair(chrono::Month, u32);
@@ -26,4 +27,8 @@ pub fn parse_bool(v: &str) -> bool {
 
 pub fn parse_date(value: &str) -> NaiveDate {
     NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap()
+}
+
+pub fn parse_date_time(value: &str) -> NaiveDateTime {
+    NaiveDateTime::parse_from_str(value, DATE_TIME_FORMAT).unwrap()
 }
