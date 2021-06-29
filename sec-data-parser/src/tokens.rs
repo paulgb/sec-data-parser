@@ -1,69 +1,57 @@
-use std::io::BufRead;
-
-use crate::error;
-use crate::parse::ParsedLine;
+use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    TagOpen(ContainerTag),
-    TagClose(ContainerTag),
-    TagValue(ValueTag, String),
-    TextData(String),
+    ContainerTagOpen(ContainerTag),
+    ContainerTagClose(ContainerTag),
+    ValueTag(ValueTag),
+    RawText(String),
+    TextBlock(String),
 }
 
-fn read_line(reader: &mut impl BufRead) -> Option<String> {
-    let mut line: String = Default::default();
-    let result = reader.read_line(&mut line).unwrap();
+pub fn next_token(st: &str) -> Result<(Token, &str)> {
+    Ok(if st.starts_with('<') {
+        let closing = st.starts_with("</");
+        let end_idx = st.find('>').unwrap();
+        let start_idx = if closing { 2 } else { 1 };
+        let tag = st[start_idx..end_idx].to_string();
+        if tag == "TEXT" {
+            let start_idx = "<TEXT>".len();
+            let end_idx = st.find("</TEXT>").unwrap();
+            let content = st[start_idx..end_idx].to_string();
+            let st = &st[end_idx + "</TEXT>".len()..];
 
-    if result == 0 {
-        None
+            (Token::TextBlock(content), st)
+        } else if let Ok(container_tag) = ContainerTag::parse(&tag) {
+            if closing {
+                (Token::ContainerTagClose(container_tag), &st[end_idx + 1..])
+            } else {
+                (Token::ContainerTagOpen(container_tag), &st[end_idx + 1..])
+            }
+        } else {
+            (Token::ValueTag(ValueTag::parse(&tag)?), &st[end_idx + 1..])
+        }
     } else {
-        Some(line)
-    }
+        let end_idx = st.find('<').unwrap();
+        (Token::RawText(st[..end_idx].trim().to_string()), &st[end_idx..])
+    })
 }
 
-fn next_token(mut reader: &mut impl BufRead) -> error::Result<Option<Token>> {
-    let line = read_line(&mut reader);
-    if let Some(line) = line {
-        let parsed = crate::parse::parse_line(&line.trim());
+pub fn tokenize_submission(submission: String) -> Result<Vec<Token>> {
+    let mut tokens: Vec<Token> = Vec::new();
+    let mut st = submission.as_str();
 
-        Ok(Some(match parsed {
-            ParsedLine::OpenTag("TEXT") => {
-                let mut body = String::new();
-                while let Some(v) = read_line(&mut reader) {
-                    if v == "</TEXT>\n" {
-                        return Ok(Some(Token::TextData(body)));
-                    } else {
-                        body.push_str(&v);
-                    }
-                }
+    while st.len() > 0 {
+        if st.starts_with('\n') || st.starts_with(' ') {
+            st = &st[1..];
+            continue;
+        }
 
-                unimplemented!()
-            }
-            ParsedLine::OpenTag(tag) => {
-                if let Ok(container_tag) = ContainerTag::parse(tag) {
-                    Token::TagOpen(container_tag)
-                } else {
-                    Token::TagValue(ValueTag::parse(tag)?, "".to_string())
-                }
-            }
-            ParsedLine::CloseTag(tag) => Token::TagClose(ContainerTag::parse(tag)?),
-            ParsedLine::TagWithValue(tag, value) => {
-                Token::TagValue(ValueTag::parse(tag)?, value.to_string())
-            }
-        }))
-    } else {
-        Ok(None)
-    }
-}
-
-pub fn tokenize_submission(submission: &mut impl BufRead) -> Vec<Token> {
-    let mut tokens = Vec::new();
-
-    while let Some(token) = next_token(submission).unwrap() {
-        tokens.push(token);
+        let (tok, new_st) = next_token(st)?;
+        tokens.push(tok);
+        st = new_st;
     }
 
-    tokens
+    Ok(tokens)
 }

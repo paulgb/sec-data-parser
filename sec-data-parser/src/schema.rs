@@ -3,7 +3,7 @@ use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
-use crate::types::{parse_bool, parse_date, MonthDayPair, parse_date_time};
+use crate::types::{parse_bool, parse_date, parse_date_time, MonthDayPair};
 use chrono::{NaiveDate, NaiveDateTime};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -63,6 +63,7 @@ pub struct CompanyData {
     pub state_of_incorporation: Option<String>,
     pub fiscal_year_end: Option<MonthDayPair>,
     pub assigned_sic: Option<String>,
+    pub relationship: Option<String>,
 }
 
 impl CompanyData {
@@ -73,6 +74,7 @@ impl CompanyData {
         let mut state_of_incorporation = None;
         let mut fiscal_year_end = None;
         let mut assigned_sic = None;
+        let mut relationship = None;
 
         for part in parts {
             match &part {
@@ -101,6 +103,10 @@ impl CompanyData {
                         assert!(assigned_sic.is_none());
                         assigned_sic = Some(value.clone());
                     }
+                    ValueTag::Relationship => {
+                        assert!(relationship.is_none());
+                        relationship = Some(value.clone());
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 _ => panic!("Unexpected: {:?}", &part),
@@ -114,6 +120,7 @@ impl CompanyData {
             state_of_incorporation,
             fiscal_year_end,
             assigned_sic,
+            relationship,
         })
     }
 }
@@ -219,7 +226,7 @@ impl FormerCompany {
 #[derive(Debug, PartialEq, Clone)]
 pub struct Company {
     pub company_data: Option<CompanyData>,
-    pub filing_values: Option<FilingValues>,
+    pub filing_values: Vec<FilingValues>,
     pub business_address: Option<Address>,
     pub mail_address: Option<Address>,
     pub owner_data: Option<CompanyData>,
@@ -230,7 +237,7 @@ pub struct Company {
 impl Company {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut company_data = None;
-        let mut filing_values = None;
+        let mut filing_values = Vec::new();
         let mut business_address = None;
         let mut mail_address = None;
         let mut owner_data = None;
@@ -245,8 +252,7 @@ impl Company {
                         company_data = Some(CompanyData::from_parts(parts)?)
                     }
                     ContainerTag::FilingValues => {
-                        assert!(filing_values.is_none());
-                        filing_values = Some(FilingValues::from_parts(parts)?)
+                        filing_values.push(FilingValues::from_parts(parts)?);
                     }
                     ContainerTag::BusinessAddress => {
                         assert!(business_address.is_none());
@@ -290,9 +296,10 @@ impl Company {
 pub struct Document {
     pub doc_type: String,
     pub sequence: u32,
-    pub filename: String,
+    pub filename: Option<String>,
     pub body: Option<TypedData>,
     pub description: Option<String>,
+    pub flawed: bool,
 }
 
 impl Document {
@@ -302,6 +309,7 @@ impl Document {
         let mut filename = None;
         let mut body = None;
         let mut description = None;
+        let mut flawed = false;
 
         for part in parts {
             match &part {
@@ -322,6 +330,9 @@ impl Document {
                         assert!(description.is_none());
                         description = Some(value.clone());
                     }
+                    ValueTag::Flawed => {
+                        flawed = true;
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::TextNode(t) => body = Some(TypedData::from_string(t)),
@@ -332,9 +343,10 @@ impl Document {
         Ok(Document {
             doc_type: doc_type.unwrap(),
             sequence: sequence.unwrap(),
-            filename: filename.unwrap(),
+            filename,
             body,
             description,
+            flawed,
         })
     }
 }
@@ -718,6 +730,7 @@ pub struct Submission {
     pub public_rel_date: Option<NaiveDate>,
     pub deletion: bool,
     pub correction: bool,
+    pub sros: Option<String>,
 }
 
 impl Submission {
@@ -772,6 +785,7 @@ impl Submission {
         let mut public_rel_date = None;
         let mut deletion = false;
         let mut correction = false;
+        let mut sros = None;
 
         for part in parts {
             match &part {
@@ -924,6 +938,9 @@ impl Submission {
                     ValueTag::Correction => {
                         correction = true;
                     }
+                    ValueTag::Sros => {
+                        sros = Some(value.clone());
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
@@ -952,7 +969,8 @@ impl Submission {
                         subject_company.push(Company::from_parts(parts)?);
                     }
                     ContainerTag::FiledBy => {
-                        assert!(filed_by.is_none());
+                        // Technically an n=1, but not asserted because at least one historic
+                        // filing duplicates it.
                         filed_by = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::Depositor => {
@@ -1022,6 +1040,7 @@ impl Submission {
             public_rel_date,
             deletion,
             correction,
+            sros,
         })
     }
 }

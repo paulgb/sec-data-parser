@@ -1,5 +1,5 @@
 use colored::Colorize;
-use sec_data_parser::{Company, CompanyData, Submission, Document, TypedData};
+use sec_data_parser::{Company, CompanyData, Document, Submission, TypedData};
 
 pub trait PrettyPrint {
     fn pretty_print_with_indent(&self, indent: u32);
@@ -42,7 +42,10 @@ impl PrettyPrint for Company {
 
 impl PrettyPrint for TypedData {
     fn pretty_print_with_indent(&self, indent: u32) {
-        PrettyPrint::pretty_print_with_indent(&("Data Type", self.data_type.to_string().as_str()), indent);
+        PrettyPrint::pretty_print_with_indent(
+            &("Data Type", self.data_type.to_string().as_str()),
+            indent,
+        );
         PrettyPrint::pretty_print_with_indent(&("Data", self.body.to_string().as_str()), indent);
     }
 }
@@ -50,10 +53,15 @@ impl PrettyPrint for TypedData {
 impl PrettyPrint for Document {
     fn pretty_print_with_indent(&self, indent: u32) {
         PrettyPrint::pretty_print_with_indent(&("Type", self.doc_type.as_str()), indent + 1);
-        PrettyPrint::pretty_print_with_indent(&("Filename", self.filename.as_str()), indent + 1);
+        if let Some(filename) = &self.filename {
+            PrettyPrint::pretty_print_with_indent(&("Filename", filename.as_str()), indent + 1);
+        }
 
         if let Some(description) = &self.description {
-            PrettyPrint::pretty_print_with_indent(&("Description", description.as_str()), indent + 1);
+            PrettyPrint::pretty_print_with_indent(
+                &("Description", description.as_str()),
+                indent + 1,
+            );
         }
 
         if let Some(body) = &self.body {
@@ -64,7 +72,10 @@ impl PrettyPrint for Document {
 
 impl PrettyPrint for Submission {
     fn pretty_print_with_indent(&self, indent: u32) {
-        PrettyPrint::pretty_print_with_indent(&("Filing Date", self.filing_date.to_string().as_str()), indent);
+        PrettyPrint::pretty_print_with_indent(
+            &("Filing Date", self.filing_date.to_string().as_str()),
+            indent,
+        );
 
         for filer in &self.reporting_owners {
             println!("{}", "Reporting Owner".yellow());

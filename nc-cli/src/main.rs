@@ -1,12 +1,11 @@
 mod pretty_print;
 
-use sec_data_parser::{parse_submission, Submission};
-use std::fs::{File, read_dir};
-use std::io::BufReader;
+use sec_data_parser::parse_submission;
+use std::fs::read_dir;
 
 use crate::pretty_print::PrettyPrint;
 use clap::{AppSettings, Clap};
-use std::path::{PathBuf, Path};
+use std::path::PathBuf;
 
 #[derive(Clap)]
 #[clap(setting = AppSettings::ColoredHelp)]
@@ -31,26 +30,21 @@ struct CheckCommand {
     dir: PathBuf,
 }
 
-fn read_submission(path: &Path) -> Submission {
-    let mut reader = BufReader::new(File::open(path).unwrap());
-    parse_submission(&mut reader).unwrap()
-}
-
 fn main() {
     let opts = Opts::parse();
 
     match opts.subcmd {
         SubCommand::Describe(DescribeCommand { file }) => {
-            let submission = read_submission(&file);
+            let submission = parse_submission(&file).unwrap();
 
             submission.pretty_print();
         }
-        SubCommand::Check(CheckCommand {dir}) => {
+        SubCommand::Check(CheckCommand { dir }) => {
             for file in read_dir(dir).unwrap() {
                 let path = file.unwrap().path();
                 println!("{:?}", &path);
 
-                read_submission(&path);
+                parse_submission(&path).unwrap();
             }
         }
     }
