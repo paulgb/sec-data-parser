@@ -23,7 +23,7 @@ fn main() {
         if let Ok(DocumentTree::ContainerNode(ContainerTag::Submission, parts)) =
             document_tree::parse_doc(&mut tokens)
         {
-            let submission = Submission::from_parts(&parts);
+            let _submission = Submission::from_parts(&parts);
         } else {
             panic!("here1");
         }

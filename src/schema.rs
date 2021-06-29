@@ -16,7 +16,7 @@ pub struct FilingValues {
 }
 
 impl FilingValues {
-    fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut form_type = None;
         let mut act = None;
         let mut file_number = None;
@@ -67,7 +67,7 @@ pub struct CompanyData {
 }
 
 impl CompanyData {
-    fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut conformed_name = None;
         let mut cik = None;
         let mut irs_number = None;
@@ -130,7 +130,7 @@ pub struct Address {
 }
 
 impl Address {
-    fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut street1 = None;
         let mut street2 = None;
         let mut city = None;
@@ -189,7 +189,7 @@ pub struct FormerCompany {
 }
 
 impl FormerCompany {
-    fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut former_conformed_name = None;
         let mut date_changed = None;
 
@@ -229,7 +229,7 @@ pub struct Filer {
 }
 
 impl Filer {
-    fn from_parts(parts: &Vec<DocumentTree>) -> Result<Filer> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut company_data = None;
         let mut filing_values = None;
         let mut business_address = None;
@@ -240,9 +240,6 @@ impl Filer {
 
         for part in parts {
             match &part {
-                DocumentTree::ValueNode(tag, value) => match tag {
-                    _ => panic!("Unexpected: {:?}", &part),
-                },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
                     ContainerTag::CompanyData => {
                         assert_eq!(None, company_data);
@@ -300,7 +297,7 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut doc_type = None;
         let mut sequence = None;
         let mut filename = None;
@@ -351,7 +348,7 @@ pub struct ClassContract {
 }
 
 impl ClassContract {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut class_contract_id = None;
         let mut class_contract_name = None;
         let mut class_contract_ticker_symbol = None;
@@ -394,7 +391,7 @@ pub struct Series {
 }
 
 impl Series {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut owner_cik = None;
         let mut series_id = None;
         let mut series_name = None;
@@ -430,7 +427,7 @@ impl Series {
         }
 
         Ok(Series {
-            owner_cik: owner_cik,
+            owner_cik,
             series_id: series_id.unwrap(),
             series_name: series_name.unwrap(),
             class_contracts,
@@ -445,27 +442,20 @@ pub struct SeriesAndCik {
 }
 
 impl SeriesAndCik {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut series = None;
         let mut cik = None;
 
         for part in parts {
             match &part {
-                DocumentTree::ValueNode(tag, value) => match tag {
-                    ValueTag::Cik => {
-                        assert_eq!(None, cik);
-                        cik = Some(value.clone());
-                    }
-                    _ => panic!("Unexpected: {:?}", &part),
-                },
-                DocumentTree::ContainerNode(tag, parts) => match tag {
-                    ContainerTag::Series => {
-                        assert_eq!(None, series);
-                        series = Some(Series::from_parts(parts)?);
-                    }
-                    _ => panic!("Unexpected: {:?}", &part),
-                },
-
+                DocumentTree::ValueNode(ValueTag::Cik, value) => {
+                    assert_eq!(None, cik);
+                    cik = Some(value.clone());
+                }
+                DocumentTree::ContainerNode(ContainerTag::Series, parts) => {
+                    assert_eq!(None, series);
+                    series = Some(Series::from_parts(parts)?);
+                }
                 _ => panic!("Unexpected: {:?}", &part),
             }
         }
@@ -484,7 +474,7 @@ pub struct Merger {
 }
 
 impl Merger {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut acquiring_data = None;
         let mut target_data = None;
 
@@ -517,7 +507,7 @@ pub struct SeriesAndClassesContracts {
 }
 
 impl SeriesAndClassesContracts {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut series = Vec::new();
 
         for part in parts {
@@ -543,7 +533,7 @@ pub struct MergerSeriesAndClassContracts {
 }
 
 impl MergerSeriesAndClassContracts {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut mergers = Vec::new();
 
         for part in parts {
@@ -570,7 +560,7 @@ pub struct SeriesAndClassesContractsData {
 }
 
 impl SeriesAndClassesContractsData {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut existing_series_and_classes_contracts = None;
         let mut merger_series_and_classes_contracts = None;
 
@@ -641,7 +631,7 @@ pub struct Submission {
 }
 
 impl Submission {
-    pub fn from_parts(parts: &Vec<DocumentTree>) -> Result<Self> {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut accession_number = None;
         let mut filing_type = None;
         let mut public_document_count: usize = 0;
