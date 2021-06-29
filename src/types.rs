@@ -1,6 +1,7 @@
 use chrono::Month;
 use num_traits::FromPrimitive;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct MonthDayPair(chrono::Month, u32);
 
 impl MonthDayPair {
