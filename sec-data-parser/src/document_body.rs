@@ -1,16 +1,38 @@
 use uuencode::uudecode;
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum DataType {
     Plaintext,
     Xml,
     Pdf,
+    Xbrl,
+}
+
+impl Display for DataType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DataType::Plaintext => write!(f, "Plain Text"),
+            DataType::Xml => write!(f, "XML"),
+            DataType::Pdf => write!(f, "PDF"),
+            DataType::Xbrl => write!(f, "XBRL"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum DocumentBody {
     BinaryData(String, Vec<u8>),
     Text(String),
+}
+
+impl Display for DocumentBody {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DocumentBody::BinaryData(filename, data) => writeln!(f, "Binary file {} with {} bytes.", filename, data.len()),
+            DocumentBody::Text(data) => writeln!(f, "Text data with {} bytes", data.len())
+        }
+    }
 }
 
 impl DocumentBody {
@@ -26,8 +48,8 @@ impl DocumentBody {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedData {
-    data_type: DataType,
-    body: DocumentBody,
+    pub data_type: DataType,
+    pub body: DocumentBody,
 }
 
 impl TypedData {
@@ -42,6 +64,11 @@ impl TypedData {
             TypedData {
                 data_type: DataType::Pdf,
                 body: DocumentBody::from_string(st.strip_suffix("</PDF>").unwrap()),
+            }
+        } else if let Some(st) = st.strip_prefix("<XBRL>") {
+            TypedData {
+                data_type: DataType::Pdf,
+                body: DocumentBody::from_string(st.strip_suffix("</XBRL>").unwrap()),
             }
         } else {
             TypedData {

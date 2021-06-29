@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 sec-data-parser = {path="../sec-data-parser"}
+clap = "3.0.0-beta.2"
+colored = "2.0.0"

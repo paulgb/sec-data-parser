@@ -8,10 +8,10 @@ use chrono::NaiveDate;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FilingValues {
-    form_type: String,
-    act: Option<String>,
-    file_number: Option<String>,
-    film_number: Option<String>,
+    pub form_type: String,
+    pub act: Option<String>,
+    pub file_number: Option<String>,
+    pub film_number: Option<String>,
 }
 
 impl FilingValues {
@@ -57,12 +57,12 @@ impl FilingValues {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct CompanyData {
-    conformed_name: String,
-    cik: String,
-    irs_number: Option<String>,
-    state_of_incorporation: Option<String>,
-    fiscal_year_end: Option<MonthDayPair>,
-    assigned_sic: Option<String>,
+    pub conformed_name: String,
+    pub cik: String,
+    pub irs_number: Option<String>,
+    pub state_of_incorporation: Option<String>,
+    pub fiscal_year_end: Option<MonthDayPair>,
+    pub assigned_sic: Option<String>,
 }
 
 impl CompanyData {
@@ -120,12 +120,12 @@ impl CompanyData {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Address {
-    street1: Option<String>,
-    street2: Option<String>,
-    city: Option<String>,
-    state: Option<String>,
-    zip: Option<String>,
-    phone: Option<String>,
+    pub street1: Option<String>,
+    pub street2: Option<String>,
+    pub city: Option<String>,
+    pub state: Option<String>,
+    pub zip: Option<String>,
+    pub phone: Option<String>,
 }
 
 impl Address {
@@ -183,8 +183,8 @@ impl Address {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FormerCompany {
-    former_conformed_name: String,
-    date_changed: NaiveDate,
+    pub former_conformed_name: String,
+    pub date_changed: NaiveDate,
 }
 
 impl FormerCompany {
@@ -217,17 +217,17 @@ impl FormerCompany {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Filer {
-    company_data: Option<CompanyData>,
-    filing_values: Option<FilingValues>,
-    business_address: Option<Address>,
-    mail_address: Option<Address>,
-    owner_data: Option<CompanyData>,
-    former_name: Vec<FormerCompany>,
-    former_company: Vec<FormerCompany>,
+pub struct Company {
+    pub company_data: Option<CompanyData>,
+    pub filing_values: Option<FilingValues>,
+    pub business_address: Option<Address>,
+    pub mail_address: Option<Address>,
+    pub owner_data: Option<CompanyData>,
+    pub former_name: Vec<FormerCompany>,
+    pub former_company: Vec<FormerCompany>,
 }
 
-impl Filer {
+impl Company {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut company_data = None;
         let mut filing_values = None;
@@ -274,7 +274,7 @@ impl Filer {
             }
         }
 
-        Ok(Filer {
+        Ok(Company {
             company_data,
             filing_values,
             business_address,
@@ -288,11 +288,11 @@ impl Filer {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Document {
-    doc_type: String,
-    sequence: u32,
-    filename: String,
-    body: Option<TypedData>, // TODO: parse
-    description: Option<String>,
+    pub doc_type: String,
+    pub sequence: u32,
+    pub filename: String,
+    pub body: Option<TypedData>,
+    pub description: Option<String>,
 }
 
 impl Document {
@@ -341,9 +341,9 @@ impl Document {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ClassContract {
-    class_contract_id: String,
-    class_contract_name: String,
-    class_contract_ticker_symbol: Option<String>,
+    pub class_contract_id: String,
+    pub class_contract_name: String,
+    pub class_contract_ticker_symbol: Option<String>,
 }
 
 impl ClassContract {
@@ -383,10 +383,10 @@ impl ClassContract {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Series {
-    owner_cik: Option<String>,
-    series_id: String,
-    series_name: String,
-    class_contracts: Vec<ClassContract>,
+    pub owner_cik: Option<String>,
+    pub series_id: String,
+    pub series_name: String,
+    pub class_contracts: Vec<ClassContract>,
 }
 
 impl Series {
@@ -436,8 +436,8 @@ impl Series {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SeriesAndCik {
-    cik: String,
-    series: Series,
+    pub cik: String,
+    pub series: Series,
 }
 
 impl SeriesAndCik {
@@ -468,8 +468,8 @@ impl SeriesAndCik {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Merger {
-    acquiring_data: SeriesAndCik,
-    target_data: SeriesAndCik,
+    pub acquiring_data: SeriesAndCik,
+    pub target_data: SeriesAndCik,
 }
 
 impl Merger {
@@ -502,7 +502,7 @@ impl Merger {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SeriesAndClassesContracts {
-    series: Vec<Series>,
+    pub series: Vec<Series>,
 }
 
 impl SeriesAndClassesContracts {
@@ -528,7 +528,7 @@ impl SeriesAndClassesContracts {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct MergerSeriesAndClassContracts {
-    mergers: Vec<Merger>,
+    pub mergers: Vec<Merger>,
 }
 
 impl MergerSeriesAndClassContracts {
@@ -554,8 +554,8 @@ impl MergerSeriesAndClassContracts {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SeriesAndClassesContractsData {
-    existing_series_and_classes_contracts: Option<SeriesAndClassesContracts>,
-    merger_series_and_classes_contracts: Option<MergerSeriesAndClassContracts>,
+    pub existing_series_and_classes_contracts: Option<SeriesAndClassesContracts>,
+    pub merger_series_and_classes_contracts: Option<MergerSeriesAndClassContracts>,
 }
 
 impl SeriesAndClassesContractsData {
@@ -591,42 +591,42 @@ impl SeriesAndClassesContractsData {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Submission {
-    accession_number: Option<String>,
-    filing_type: Option<String>,
-    items: Vec<String>,
-    filing_date: Option<NaiveDate>,
-    date_of_filing_date_change: Option<NaiveDate>,
-    effectiveness_date: Option<NaiveDate>,
-    period: Option<NaiveDate>,
-    filers: Vec<Filer>,
-    documents: Vec<Document>,
-    series_and_classes_contracts_data: Option<SeriesAndClassesContractsData>,
-    reporting_owners: Vec<Filer>,
-    issuer: Option<Filer>,
-    group_members: Vec<String>,
-    subject_company: Option<Filer>,
-    filed_by: Option<Filer>,
-    reference_462b: Option<String>,
-    is_filer_a_new_registrant: Option<bool>,
-    is_filer_a_well_known_seasoned_issuer: Option<bool>,
-    filed_pursuant_to_general_instruction_a2: Option<bool>,
-    is_fund_24f2_eligible: Option<bool>,
-    action_date: Option<NaiveDate>,
-    received_date: Option<NaiveDate>,
-    ma_i_individual: Option<String>,
-    abs_rule: Option<String>,
-    period_start: Option<NaiveDate>,
-    no_quarterly_activity: Option<bool>,
-    no_annual_activity: Option<bool>,
-    abs_asset_class: Option<String>,
-    depositor_cik: Option<String>,
-    sponsor_cik: Option<String>,
-    confirming_copy: Option<Box<Submission>>,
-    category: Option<String>,
-    registered_entity: Option<bool>,
-    depositor: Option<Filer>,
-    securitizer: Option<Filer>,
-    references_429: Option<String>,
+    pub accession_number: Option<String>,
+    pub filing_type: Option<String>,
+    pub items: Vec<String>,
+    pub filing_date: Option<NaiveDate>,
+    pub date_of_filing_date_change: Option<NaiveDate>,
+    pub effectiveness_date: Option<NaiveDate>,
+    pub period: Option<NaiveDate>,
+    pub filers: Vec<Company>,
+    pub documents: Vec<Document>,
+    pub series_and_classes_contracts_data: Option<SeriesAndClassesContractsData>,
+    pub reporting_owners: Vec<Company>,
+    pub issuer: Option<Company>,
+    pub group_members: Vec<String>,
+    pub subject_company: Option<Company>,
+    pub filed_by: Option<Company>,
+    pub reference_462b: Option<String>,
+    pub is_filer_a_new_registrant: Option<bool>,
+    pub is_filer_a_well_known_seasoned_issuer: Option<bool>,
+    pub filed_pursuant_to_general_instruction_a2: Option<bool>,
+    pub is_fund_24f2_eligible: Option<bool>,
+    pub action_date: Option<NaiveDate>,
+    pub received_date: Option<NaiveDate>,
+    pub ma_i_individual: Option<String>,
+    pub abs_rule: Option<String>,
+    pub period_start: Option<NaiveDate>,
+    pub no_quarterly_activity: Option<bool>,
+    pub no_annual_activity: Option<bool>,
+    pub abs_asset_class: Option<String>,
+    pub depositor_cik: Option<String>,
+    pub sponsor_cik: Option<String>,
+    pub confirming_copy: Option<Box<Submission>>,
+    pub category: Option<String>,
+    pub registered_entity: Option<bool>,
+    pub depositor: Option<Company>,
+    pub securitizer: Option<Company>,
+    pub references_429: Option<String>,
 }
 
 impl Submission {
@@ -786,7 +786,7 @@ impl Submission {
                         return Submission::from_parts(parts);
                     }
                     ContainerTag::Filer => {
-                        let filer = Filer::from_parts(parts)?;
+                        let filer = Company::from_parts(parts)?;
                         filers.push(filer);
                     }
                     ContainerTag::Document => {
@@ -799,20 +799,20 @@ impl Submission {
                             Some(SeriesAndClassesContractsData::from_parts(parts)?);
                     }
                     ContainerTag::ReportingOwner => {
-                        let reporting_owner = Filer::from_parts(parts)?;
+                        let reporting_owner = Company::from_parts(parts)?;
                         reporting_owners.push(reporting_owner);
                     }
                     ContainerTag::Issuer => {
                         assert!(issuer.is_none());
-                        issuer = Some(Filer::from_parts(parts)?);
+                        issuer = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::SubjectCompany => {
                         assert!(subject_company.is_none());
-                        subject_company = Some(Filer::from_parts(parts)?);
+                        subject_company = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::FiledBy => {
                         assert!(filed_by.is_none());
-                        filed_by = Some(Filer::from_parts(parts)?);
+                        filed_by = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::ConfirmingCopy => {
                         assert!(confirming_copy.is_none());
@@ -820,11 +820,11 @@ impl Submission {
                     }
                     ContainerTag::Depositor => {
                         assert!(depositor.is_none());
-                        depositor = Some(Filer::from_parts(parts)?);
+                        depositor = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::Securitizer => {
                         assert!(securitizer.is_none());
-                        securitizer = Some(Filer::from_parts(parts)?);
+                        securitizer = Some(Company::from_parts(parts)?);
                     }
                     _ => unimplemented!("{:?}", tag),
                 },
