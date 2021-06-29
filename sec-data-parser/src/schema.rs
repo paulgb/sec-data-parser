@@ -435,12 +435,12 @@ impl Series {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct SeriesAndCik {
+pub struct AcquiringData {
     pub cik: String,
     pub series: Series,
 }
 
-impl SeriesAndCik {
+impl AcquiringData {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut series = None;
         let mut cik = None;
@@ -459,7 +459,7 @@ impl SeriesAndCik {
             }
         }
 
-        Ok(SeriesAndCik {
+        Ok(AcquiringData {
             series: series.unwrap(),
             cik: cik.unwrap(),
         })
@@ -467,26 +467,56 @@ impl SeriesAndCik {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+pub struct TargetData {
+    pub cik: String,
+    pub series: Vec<Series>,
+}
+
+impl TargetData {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
+        let mut series = Vec::new();
+        let mut cik = None;
+
+        for part in parts {
+            match &part {
+                DocumentTree::ValueNode(ValueTag::Cik, value) => {
+                    assert!(cik.is_none());
+                    cik = Some(value.clone());
+                }
+                DocumentTree::ContainerNode(ContainerTag::Series, parts) => {
+                    series.push(Series::from_parts(parts)?);
+                }
+                _ => panic!("Unexpected: {:?}", &part),
+            }
+        }
+
+        Ok(TargetData {
+            series,
+            cik: cik.unwrap(),
+        })
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub struct Merger {
-    pub acquiring_data: SeriesAndCik,
-    pub target_data: SeriesAndCik,
+    pub acquiring_data: AcquiringData,
+    pub target_data: Vec<TargetData>,
 }
 
 impl Merger {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut acquiring_data = None;
-        let mut target_data = None;
+        let mut target_data = Vec::new();
 
         for part in parts {
             match &part {
                 ContainerNode(tag, parts) => match tag {
                     ContainerTag::AcquiringData => {
                         assert!(acquiring_data.is_none());
-                        acquiring_data = Some(SeriesAndCik::from_parts(parts)?)
+                        acquiring_data = Some(AcquiringData::from_parts(parts)?)
                     }
                     ContainerTag::TargetData => {
-                        assert!(target_data.is_none());
-                        target_data = Some(SeriesAndCik::from_parts(parts)?)
+                        target_data.push(TargetData::from_parts(parts)?);
                     }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
@@ -495,7 +525,7 @@ impl Merger {
         }
         Ok(Merger {
             acquiring_data: acquiring_data.unwrap(),
-            target_data: target_data.unwrap(),
+            target_data,
         })
     }
 }
@@ -528,7 +558,10 @@ impl NewSeriesAndClassesContracts {
             }
         }
 
-        Ok(NewSeriesAndClassesContracts { new_series, owner_cik })
+        Ok(NewSeriesAndClassesContracts {
+            new_series,
+            owner_cik,
+        })
     }
 }
 
@@ -624,7 +657,7 @@ impl SeriesAndClassesContractsData {
         Ok(SeriesAndClassesContractsData {
             existing_series_and_classes_contracts,
             merger_series_and_classes_contracts,
-            new_series_and_classes_contracts
+            new_series_and_classes_contracts,
         })
     }
 }
@@ -671,6 +704,8 @@ pub struct Submission {
     pub issuing_entity_name: Option<String>,
     pub paper: bool,
     pub confirming_copy: bool,
+    pub securitizer_file_number: Option<String>,
+    pub depositor_file_number: Option<String>,
 }
 
 impl Submission {
@@ -716,6 +751,8 @@ impl Submission {
         let mut issuing_entity_name = None;
         let mut paper = false;
         let mut confirming_copy = false;
+        let mut securitizer_file_number = None;
+        let mut depositor_file_number = None;
 
         for part in parts {
             match &part {
@@ -844,6 +881,12 @@ impl Submission {
                     ValueTag::ConfirmingCopy => {
                         confirming_copy = true;
                     }
+                    ValueTag::SecuritizerFileNumber => {
+                        securitizer_file_number = Some(value.clone());
+                    }
+                    ValueTag::DepositorFileNumber => {
+                        depositor_file_number = Some(value.clone());
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
@@ -933,6 +976,8 @@ impl Submission {
             issuing_entity_name,
             paper,
             confirming_copy,
+            securitizer_file_number,
+            depositor_file_number,
         })
     }
 }

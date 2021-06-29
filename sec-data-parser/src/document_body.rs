@@ -1,5 +1,5 @@
-use uuencode::uudecode;
 use std::fmt::{Display, Formatter};
+use uuencode::uudecode;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum DataType {
@@ -29,8 +29,10 @@ pub enum DocumentBody {
 impl Display for DocumentBody {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            DocumentBody::BinaryData(filename, data) => write!(f, "Binary file {} with {} bytes.", filename, data.len()),
-            DocumentBody::Text(data) => write!(f, "Text data with {} bytes", data.len())
+            DocumentBody::BinaryData(filename, data) => {
+                write!(f, "Binary file {} with {} bytes.", filename, data.len())
+            }
+            DocumentBody::Text(data) => write!(f, "Text data with {} bytes", data.len()),
         }
     }
 }

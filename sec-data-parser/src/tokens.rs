@@ -47,7 +47,7 @@ fn next_token(mut reader: &mut impl BufRead) -> error::Result<Option<Token>> {
                 } else {
                     Token::TagValue(ValueTag::parse(tag)?, "".to_string())
                 }
-            },
+            }
             ParsedLine::CloseTag(tag) => Token::TagClose(ContainerTag::parse(tag)?),
             ParsedLine::TagWithValue(tag, value) => {
                 Token::TagValue(ValueTag::parse(tag)?, value.to_string())

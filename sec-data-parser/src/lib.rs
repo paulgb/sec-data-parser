@@ -1,8 +1,8 @@
+pub use crate::document_body::*;
 use crate::document_tree::parse_doc;
 use crate::document_tree::DocumentTree;
 use crate::error::Result;
 pub use crate::schema::*;
-pub use crate::document_body::*;
 use crate::tag::ContainerTag;
 use crate::tokens::tokenize_submission;
 use std::collections::VecDeque;
