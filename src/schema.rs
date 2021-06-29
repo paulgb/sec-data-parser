@@ -1,4 +1,4 @@
-use crate::document_body::{DocumentBody, TypedData};
+use crate::document_body::TypedData;
 use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;

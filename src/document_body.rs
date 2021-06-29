@@ -1,4 +1,3 @@
-use crate::tag::ContainerTag::Document;
 use uuencode::uudecode;
 
 #[derive(Clone, Debug, PartialEq)]
