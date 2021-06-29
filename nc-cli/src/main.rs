@@ -3,7 +3,7 @@ use std::io::BufReader;
 use sec_data_parser::parse_submission;
 
 fn main() {
-    for file in read_dir("./data").unwrap() {
+    for file in read_dir("../data").unwrap() {
         let path = file.unwrap().path();
         println!("Reading: {:?}", &path);
 
