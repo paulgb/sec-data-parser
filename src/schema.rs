@@ -2,10 +2,9 @@ use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
-use crate::types::{parse_bool, MonthDayPair};
+use crate::types::{parse_bool, MonthDayPair, parse_date};
 use chrono::NaiveDate;
 
-const DATE_FORMAT: &str = "%Y%m%d";
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct FilingValues {
@@ -202,7 +201,7 @@ impl FormerCompany {
                     }
                     ValueTag::DateChanged => {
                         assert_eq!(None, date_changed);
-                        date_changed = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        date_changed = Some(parse_date(value));
                     }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
@@ -690,21 +689,21 @@ impl Submission {
                     }
                     ValueTag::FilingDate => {
                         assert_eq!(None, filing_date);
-                        filing_date = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        filing_date = Some(parse_date(value));
                     }
                     ValueTag::DateOfFilingDateChange => {
                         assert_eq!(None, date_of_filing_date_change);
                         date_of_filing_date_change =
-                            Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                            Some(parse_date(value));
                     }
                     ValueTag::EffectivenessDate => {
                         assert_eq!(None, effectiveness_date);
                         effectiveness_date =
-                            Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                            Some(parse_date(value));
                     }
                     ValueTag::Period => {
                         assert_eq!(None, period);
-                        period = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        period = Some(parse_date(value));
                     }
                     ValueTag::GroupMembers => {
                         group_members.push(value.clone());
@@ -731,12 +730,12 @@ impl Submission {
                     }
                     ValueTag::ActionDate => {
                         assert_eq!(None, action_date);
-                        action_date = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        action_date = Some(parse_date(value));
                     }
                     ValueTag::ReceivedDate => {
                         assert_eq!(None, received_date);
                         received_date =
-                            Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                            Some(parse_date(value));
                     }
                     ValueTag::MaIIndividual => {
                         assert_eq!(None, ma_i_individual);
@@ -748,7 +747,7 @@ impl Submission {
                     }
                     ValueTag::PeriodStart => {
                         assert_eq!(None, period_start);
-                        period_start = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        period_start = Some(parse_date(value));
                     }
                     ValueTag::NoQuarterlyActivity => {
                         assert_eq!(None, no_quarterly_activity);

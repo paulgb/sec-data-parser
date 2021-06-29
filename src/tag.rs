@@ -177,7 +177,6 @@ impl ValueTag {
             "REFERENCES-429" => ValueTag::References429,
             "REGISTERED-ENTITY" => ValueTag::RegisteredEntity,
             "SEQUENCE" => ValueTag::Sequence,
-            //"SERIES" => ValueTag::Series,
             "SERIES-ID" => ValueTag::SeriesId,
             "SERIES-NAME" => ValueTag::SeriesName,
             "SPONSOR-CIK" => ValueTag::SponsorCik,
