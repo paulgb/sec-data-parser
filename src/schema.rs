@@ -25,19 +25,19 @@ impl FilingValues {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::FormType => {
-                        assert_eq!(None, form_type);
+                        assert!(form_type.is_none());
                         form_type = Some(value.clone());
                     }
                     ValueTag::Act => {
-                        assert_eq!(None, act);
+                        assert!(act.is_none());
                         act = Some(value.clone());
                     }
                     ValueTag::FileNumber => {
-                        assert_eq!(None, file_number);
+                        assert!(file_number.is_none());
                         file_number = Some(value.clone());
                     }
                     ValueTag::FilmNumber => {
-                        assert_eq!(None, film_number);
+                        assert!(film_number.is_none());
                         film_number = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -78,27 +78,27 @@ impl CompanyData {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::ConformedName => {
-                        assert_eq!(None, conformed_name);
+                        assert!(conformed_name.is_none());
                         conformed_name = Some(value.clone());
                     }
                     ValueTag::Cik => {
-                        assert_eq!(None, cik);
+                        assert!(cik.is_none());
                         cik = Some(value.clone());
                     }
                     ValueTag::IrsNumber => {
-                        assert_eq!(None, irs_number);
+                        assert!(irs_number.is_none());
                         irs_number = Some(value.clone());
                     }
                     ValueTag::StateOfInforporation => {
-                        assert_eq!(None, state_of_incorporation);
+                        assert!(state_of_incorporation.is_none());
                         state_of_incorporation = Some(value.clone());
                     }
                     ValueTag::FiscalYearEnd => {
-                        assert_eq!(None, fiscal_year_end);
+                        assert!(fiscal_year_end.is_none());
                         fiscal_year_end = Some(MonthDayPair::parse(value));
                     }
                     ValueTag::AssignedSic => {
-                        assert_eq!(None, assigned_sic);
+                        assert!(assigned_sic.is_none());
                         assigned_sic = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -141,27 +141,27 @@ impl Address {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::Street1 => {
-                        assert_eq!(None, street1);
+                        assert!(street1.is_none());
                         street1 = Some(value.clone());
                     }
                     ValueTag::Street2 => {
-                        assert_eq!(None, street2);
+                        assert!(street2.is_none());
                         street2 = Some(value.clone());
                     }
                     ValueTag::City => {
-                        assert_eq!(None, city);
+                        assert!(city.is_none());
                         city = Some(value.clone());
                     }
                     ValueTag::State => {
-                        assert_eq!(None, state);
+                        assert!(state.is_none());
                         state = Some(value.clone());
                     }
                     ValueTag::Zip => {
-                        assert_eq!(None, zip);
+                        assert!(zip.is_none());
                         zip = Some(value.clone());
                     }
                     ValueTag::Phone => {
-                        assert_eq!(None, phone);
+                        assert!(phone.is_none());
                         phone = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -196,11 +196,11 @@ impl FormerCompany {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::FormerConformedName => {
-                        assert_eq!(None, former_conformed_name);
+                        assert!(former_conformed_name.is_none());
                         former_conformed_name = Some(value.clone());
                     }
                     ValueTag::DateChanged => {
-                        assert_eq!(None, date_changed);
+                        assert!(date_changed.is_none());
                         date_changed = Some(parse_date(value));
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -241,19 +241,19 @@ impl Filer {
             match &part {
                 DocumentTree::ContainerNode(tag, parts) => match tag {
                     ContainerTag::CompanyData => {
-                        assert_eq!(None, company_data);
+                        assert!(company_data.is_none());
                         company_data = Some(CompanyData::from_parts(parts)?)
                     }
                     ContainerTag::FilingValues => {
-                        assert_eq!(None, filing_values);
+                        assert!(filing_values.is_none());
                         filing_values = Some(FilingValues::from_parts(parts)?)
                     }
                     ContainerTag::BusinessAddress => {
-                        assert_eq!(None, business_address);
+                        assert!(business_address.is_none());
                         business_address = Some(Address::from_parts(parts)?)
                     }
                     ContainerTag::MailAddress => {
-                        assert_eq!(None, mail_address);
+                        assert!(mail_address.is_none());
                         mail_address = Some(Address::from_parts(parts)?)
                     }
                     ContainerTag::FormerCompany => {
@@ -261,7 +261,7 @@ impl Filer {
                         former_company.push(_fc);
                     }
                     ContainerTag::OwnerData => {
-                        assert_eq!(None, owner_data);
+                        assert!(owner_data.is_none());
                         owner_data = Some(CompanyData::from_parts(parts)?);
                     }
                     ContainerTag::FormerName => {
@@ -307,19 +307,19 @@ impl Document {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::Type => {
-                        assert_eq!(None, doc_type);
+                        assert!(doc_type.is_none());
                         doc_type = Some(value.clone());
                     }
                     ValueTag::Sequence => {
-                        assert_eq!(None, sequence);
+                        assert!(sequence.is_none());
                         sequence = Some(value.parse().unwrap());
                     }
                     ValueTag::Filename => {
-                        assert_eq!(None, filename);
+                        assert!(filename.is_none());
                         filename = Some(value.clone());
                     }
                     ValueTag::Description => {
-                        assert_eq!(None, description);
+                        assert!(description.is_none());
                         description = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -356,15 +356,15 @@ impl ClassContract {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::ClassContractId => {
-                        assert_eq!(None, class_contract_id);
+                        assert!(class_contract_id.is_none());
                         class_contract_id = Some(value.clone());
                     }
                     ValueTag::ClassContractName => {
-                        assert_eq!(None, class_contract_name);
+                        assert!(class_contract_name.is_none());
                         class_contract_name = Some(value.clone());
                     }
                     ValueTag::ClassContractTickerSymbol => {
-                        assert_eq!(None, class_contract_ticker_symbol);
+                        assert!(class_contract_ticker_symbol.is_none());
                         class_contract_ticker_symbol = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -400,15 +400,15 @@ impl Series {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::OwnerCik => {
-                        assert_eq!(None, owner_cik);
+                        assert!(owner_cik.is_none());
                         owner_cik = Some(value.clone());
                     }
                     ValueTag::SeriesId => {
-                        assert_eq!(None, series_id);
+                        assert!(series_id.is_none());
                         series_id = Some(value.clone());
                     }
                     ValueTag::SeriesName => {
-                        assert_eq!(None, series_name);
+                        assert!(series_name.is_none());
                         series_name = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -448,11 +448,11 @@ impl SeriesAndCik {
         for part in parts {
             match &part {
                 DocumentTree::ValueNode(ValueTag::Cik, value) => {
-                    assert_eq!(None, cik);
+                    assert!(cik.is_none());
                     cik = Some(value.clone());
                 }
                 DocumentTree::ContainerNode(ContainerTag::Series, parts) => {
-                    assert_eq!(None, series);
+                    assert!(series.is_none());
                     series = Some(Series::from_parts(parts)?);
                 }
                 _ => panic!("Unexpected: {:?}", &part),
@@ -481,11 +481,11 @@ impl Merger {
             match &part {
                 ContainerNode(tag, parts) => match tag {
                     ContainerTag::AcquiringData => {
-                        assert_eq!(None, acquiring_data);
+                        assert!(acquiring_data.is_none());
                         acquiring_data = Some(SeriesAndCik::from_parts(parts)?)
                     }
                     ContainerTag::TargetData => {
-                        assert_eq!(None, target_data);
+                        assert!(target_data.is_none());
                         target_data = Some(SeriesAndCik::from_parts(parts)?)
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -567,12 +567,12 @@ impl SeriesAndClassesContractsData {
             match &part {
                 DocumentTree::ContainerNode(tag, parts) => match tag {
                     ContainerTag::ExistingSeriesAndClassesContracts => {
-                        assert_eq!(None, existing_series_and_classes_contracts);
+                        assert!(existing_series_and_classes_contracts.is_none());
                         existing_series_and_classes_contracts =
                             Some(SeriesAndClassesContracts::from_parts(parts)?);
                     }
                     ContainerTag::MergerSeriesAndClassesContracts => {
-                        assert_eq!(None, merger_series_and_classes_contracts);
+                        assert!(merger_series_and_classes_contracts.is_none());
                         merger_series_and_classes_contracts =
                             Some(MergerSeriesAndClassContracts::from_parts(parts)?);
                     }
@@ -673,11 +673,11 @@ impl Submission {
             match &part {
                 DocumentTree::ValueNode(tag, value) => match tag {
                     ValueTag::AccessionNumber => {
-                        assert_eq!(None, accession_number);
+                        assert!(accession_number.is_none());
                         accession_number = Some(value.clone());
                     }
                     ValueTag::Type => {
-                        assert_eq!(None, filing_type);
+                        assert!(filing_type.is_none());
                         filing_type = Some(value.clone());
                     }
                     ValueTag::PublicDocumentCount => {
@@ -688,97 +688,97 @@ impl Submission {
                         items.push(value.clone());
                     }
                     ValueTag::FilingDate => {
-                        assert_eq!(None, filing_date);
+                        assert!(filing_date.is_none());
                         filing_date = Some(parse_date(value));
                     }
                     ValueTag::DateOfFilingDateChange => {
-                        assert_eq!(None, date_of_filing_date_change);
+                        assert!(date_of_filing_date_change.is_none());
                         date_of_filing_date_change =
                             Some(parse_date(value));
                     }
                     ValueTag::EffectivenessDate => {
-                        assert_eq!(None, effectiveness_date);
+                        assert!(effectiveness_date.is_none());
                         effectiveness_date =
                             Some(parse_date(value));
                     }
                     ValueTag::Period => {
-                        assert_eq!(None, period);
+                        assert!(period.is_none());
                         period = Some(parse_date(value));
                     }
                     ValueTag::GroupMembers => {
                         group_members.push(value.clone());
                     }
                     ValueTag::Reference462B => {
-                        assert_eq!(None, reference_462b);
+                        assert!(reference_462b.is_none());
                         reference_462b = Some(value.clone());
                     }
                     ValueTag::IsFilerANewRegistrant => {
-                        assert_eq!(None, is_filer_a_new_registrant);
+                        assert!(is_filer_a_new_registrant.is_none());
                         is_filer_a_new_registrant = Some(parse_bool(value));
                     }
                     ValueTag::IsFilerAWellKnownSeasonedIssuer => {
-                        assert_eq!(None, is_filer_a_well_known_seasoned_issuer);
+                        assert!(is_filer_a_well_known_seasoned_issuer.is_none());
                         is_filer_a_well_known_seasoned_issuer = Some(parse_bool(value));
                     }
                     ValueTag::FiledPursuantToGeneralInstructionA2 => {
-                        assert_eq!(None, filed_pursuant_to_general_instruction_a2);
+                        assert!(filed_pursuant_to_general_instruction_a2.is_none());
                         filed_pursuant_to_general_instruction_a2 = Some(parse_bool(value));
                     }
                     ValueTag::IsFund24F2Eligible => {
-                        assert_eq!(None, is_fund_24f2_eligible);
+                        assert!(is_fund_24f2_eligible.is_none());
                         is_fund_24f2_eligible = Some(parse_bool(value));
                     }
                     ValueTag::ActionDate => {
-                        assert_eq!(None, action_date);
+                        assert!(action_date.is_none());
                         action_date = Some(parse_date(value));
                     }
                     ValueTag::ReceivedDate => {
-                        assert_eq!(None, received_date);
+                        assert!(received_date.is_none());
                         received_date =
                             Some(parse_date(value));
                     }
                     ValueTag::MaIIndividual => {
-                        assert_eq!(None, ma_i_individual);
+                        assert!(ma_i_individual.is_none());
                         ma_i_individual = Some(value.clone());
                     }
                     ValueTag::AbsRule => {
-                        assert_eq!(None, abs_rule);
+                        assert!(abs_rule.is_none());
                         abs_rule = Some(value.clone());
                     }
                     ValueTag::PeriodStart => {
-                        assert_eq!(None, period_start);
+                        assert!(period_start.is_none());
                         period_start = Some(parse_date(value));
                     }
                     ValueTag::NoQuarterlyActivity => {
-                        assert_eq!(None, no_quarterly_activity);
+                        assert!(no_quarterly_activity.is_none());
                         no_quarterly_activity = Some(parse_bool(value));
                     }
                     ValueTag::NoAnnualActivity => {
-                        assert_eq!(None, no_annual_activity);
+                        assert!(no_annual_activity.is_none());
                         no_annual_activity = Some(parse_bool(value));
                     }
                     ValueTag::AbsAssetClass => {
-                        assert_eq!(None, abs_asset_class);
+                        assert!(abs_asset_class.is_none());
                         abs_asset_class = Some(value.clone());
                     }
                     ValueTag::DepositorCik => {
-                        assert_eq!(None, depositor_cik);
+                        assert!(depositor_cik.is_none());
                         depositor_cik = Some(value.clone());
                     }
                     ValueTag::SponsorCik => {
-                        assert_eq!(None, sponsor_cik);
+                        assert!(sponsor_cik.is_none());
                         sponsor_cik = Some(value.clone());
                     }
                     ValueTag::Category => {
-                        assert_eq!(None, category);
+                        assert!(category.is_none());
                         category = Some(value.clone())
                     }
                     ValueTag::RegisteredEntity => {
-                        assert_eq!(None, registered_entity);
+                        assert!(registered_entity.is_none());
                         registered_entity = Some(parse_bool(value));
                     }
                     ValueTag::References429 => {
-                        assert_eq!(None, references_429);
+                        assert!(references_429.is_none());
                         references_429 = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
@@ -797,7 +797,7 @@ impl Submission {
                         documents.push(document);
                     }
                     ContainerTag::SeriesAndClassesContractsData => {
-                        assert_eq!(None, series_and_classes_contracts_data);
+                        assert!(series_and_classes_contracts_data.is_none());
                         series_and_classes_contracts_data =
                             Some(SeriesAndClassesContractsData::from_parts(parts)?);
                     }
@@ -806,27 +806,27 @@ impl Submission {
                         reporting_owners.push(reporting_owner);
                     }
                     ContainerTag::Issuer => {
-                        assert_eq!(None, issuer);
+                        assert!(issuer.is_none());
                         issuer = Some(Filer::from_parts(parts)?);
                     }
                     ContainerTag::SubjectCompany => {
-                        assert_eq!(None, subject_company);
+                        assert!(subject_company.is_none());
                         subject_company = Some(Filer::from_parts(parts)?);
                     }
                     ContainerTag::FiledBy => {
-                        assert_eq!(None, filed_by);
+                        assert!(filed_by.is_none());
                         filed_by = Some(Filer::from_parts(parts)?);
                     }
                     ContainerTag::ConfirmingCopy => {
-                        assert_eq!(None, confirming_copy);
+                        assert!(confirming_copy.is_none());
                         confirming_copy = Some(Box::new(Submission::from_parts(parts)?));
                     }
                     ContainerTag::Depositor => {
-                        assert_eq!(None, depositor);
+                        assert!(depositor.is_none());
                         depositor = Some(Filer::from_parts(parts)?);
                     }
                     ContainerTag::Securitizer => {
-                        assert_eq!(None, securitizer);
+                        assert!(securitizer.is_none());
                         securitizer = Some(Filer::from_parts(parts)?);
                     }
                     _ => unimplemented!("{:?}", tag),
