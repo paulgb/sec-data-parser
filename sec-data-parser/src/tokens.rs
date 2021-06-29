@@ -41,7 +41,13 @@ fn next_token(mut reader: &mut impl BufRead) -> error::Result<Option<Token>> {
 
                 unimplemented!()
             }
-            ParsedLine::OpenTag(tag) => Token::TagOpen(ContainerTag::parse(tag)?),
+            ParsedLine::OpenTag(tag) => {
+                if let Ok(container_tag) = ContainerTag::parse(tag) {
+                    Token::TagOpen(container_tag)
+                } else {
+                    Token::TagValue(ValueTag::parse(tag)?, "".to_string())
+                }
+            },
             ParsedLine::CloseTag(tag) => Token::TagClose(ContainerTag::parse(tag)?),
             ParsedLine::TagWithValue(tag, value) => {
                 Token::TagValue(ValueTag::parse(tag)?, value.to_string())

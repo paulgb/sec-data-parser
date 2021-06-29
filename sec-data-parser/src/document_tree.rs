@@ -25,8 +25,9 @@ pub fn parse_doc(tokens: &mut VecDeque<Token>) -> error::Result<DocumentTree> {
                         tokens.pop_front();
 
                         return Ok(ContainerNode(tag, parts));
-                    } else if let Token::TagClose(_) = next_token {
-                        return Ok(ContainerNode(tag, parts));
+                    } else if let Token::TagClose(c) = next_token {
+                        panic!("Expected {:?}, got {:?}", c, tag);
+                        //return Ok(ContainerNode(tag, parts));
                     } else {
                         parts.push(parse_doc(tokens)?);
                     }

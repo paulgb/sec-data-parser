@@ -64,9 +64,7 @@ impl PrettyPrint for Document {
 
 impl PrettyPrint for Submission {
     fn pretty_print_with_indent(&self, indent: u32) {
-        if let Some(filing_date) = self.filing_date {
-            PrettyPrint::pretty_print_with_indent(&("Filing Date", filing_date.to_string().as_str()), indent);
-        }
+        PrettyPrint::pretty_print_with_indent(&("Filing Date", self.filing_date.to_string().as_str()), indent);
 
         for filer in &self.reporting_owners {
             println!("{}", "Reporting Owner".yellow());

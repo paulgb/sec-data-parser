@@ -501,6 +501,38 @@ impl Merger {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+pub struct NewSeriesAndClassesContracts {
+    pub owner_cik: Option<String>,
+    pub new_series: Vec<Series>,
+}
+
+impl NewSeriesAndClassesContracts {
+    pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
+        let mut new_series = Vec::new();
+        let mut owner_cik = None;
+
+        for part in parts {
+            match &part {
+                DocumentTree::ValueNode(ValueTag::OwnerCik, value) => {
+                    assert!(owner_cik.is_none());
+                    owner_cik = Some(value.clone());
+                }
+                DocumentTree::ContainerNode(tag, parts) => match tag {
+                    ContainerTag::NewSeries => {
+                        let s = Series::from_parts(parts)?;
+                        new_series.push(s);
+                    }
+                    _ => unimplemented!("{:?}", tag),
+                },
+                _ => panic!("Unexpected: {:?}", &part),
+            }
+        }
+
+        Ok(NewSeriesAndClassesContracts { new_series, owner_cik })
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub struct SeriesAndClassesContracts {
     pub series: Vec<Series>,
 }
@@ -556,12 +588,14 @@ impl MergerSeriesAndClassContracts {
 pub struct SeriesAndClassesContractsData {
     pub existing_series_and_classes_contracts: Option<SeriesAndClassesContracts>,
     pub merger_series_and_classes_contracts: Option<MergerSeriesAndClassContracts>,
+    pub new_series_and_classes_contracts: Option<NewSeriesAndClassesContracts>,
 }
 
 impl SeriesAndClassesContractsData {
     pub fn from_parts(parts: &[DocumentTree]) -> Result<Self> {
         let mut existing_series_and_classes_contracts = None;
         let mut merger_series_and_classes_contracts = None;
+        let mut new_series_and_classes_contracts = None;
 
         for part in parts {
             match &part {
@@ -576,6 +610,11 @@ impl SeriesAndClassesContractsData {
                         merger_series_and_classes_contracts =
                             Some(MergerSeriesAndClassContracts::from_parts(parts)?);
                     }
+                    ContainerTag::NewSeriesAndClassesContracts => {
+                        assert!(new_series_and_classes_contracts.is_none());
+                        new_series_and_classes_contracts =
+                            Some(NewSeriesAndClassesContracts::from_parts(parts)?);
+                    }
                     _ => unimplemented!("{:?}", tag),
                 },
                 _ => panic!("Unexpected: {:?}", &part),
@@ -585,16 +624,17 @@ impl SeriesAndClassesContractsData {
         Ok(SeriesAndClassesContractsData {
             existing_series_and_classes_contracts,
             merger_series_and_classes_contracts,
+            new_series_and_classes_contracts
         })
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Submission {
-    pub accession_number: Option<String>,
-    pub filing_type: Option<String>,
+    pub accession_number: String,
+    pub filing_type: String,
     pub items: Vec<String>,
-    pub filing_date: Option<NaiveDate>,
+    pub filing_date: NaiveDate,
     pub date_of_filing_date_change: Option<NaiveDate>,
     pub effectiveness_date: Option<NaiveDate>,
     pub period: Option<NaiveDate>,
@@ -621,12 +661,16 @@ pub struct Submission {
     pub abs_asset_class: Option<String>,
     pub depositor_cik: Option<String>,
     pub sponsor_cik: Option<String>,
-    pub confirming_copy: Option<Box<Submission>>,
     pub category: Option<String>,
     pub registered_entity: Option<bool>,
     pub depositor: Option<Company>,
     pub securitizer: Option<Company>,
     pub references_429: Option<String>,
+    pub securitizer_cik: Option<String>,
+    pub issuing_entity_cik: Option<String>,
+    pub issuing_entity_name: Option<String>,
+    pub paper: bool,
+    pub confirming_copy: bool,
 }
 
 impl Submission {
@@ -662,12 +706,16 @@ impl Submission {
         let mut abs_asset_class = None;
         let mut depositor_cik = None;
         let mut sponsor_cik = None;
-        let mut confirming_copy = None;
         let mut category = None;
         let mut registered_entity = None;
         let mut depositor = None;
         let mut securitizer = None;
         let mut references_429 = None;
+        let mut securitizer_cik = None;
+        let mut issuing_entity_cik = None;
+        let mut issuing_entity_name = None;
+        let mut paper = false;
+        let mut confirming_copy = false;
 
         for part in parts {
             match &part {
@@ -778,13 +826,27 @@ impl Submission {
                         assert!(references_429.is_none());
                         references_429 = Some(value.clone());
                     }
+                    ValueTag::SecuritizerCik => {
+                        assert!(securitizer_cik.is_none());
+                        securitizer_cik = Some(value.clone());
+                    }
+                    ValueTag::IssuingEntityCik => {
+                        assert!(issuing_entity_cik.is_none());
+                        issuing_entity_cik = Some(value.clone());
+                    }
+                    ValueTag::IssuingEntityName => {
+                        assert!(issuing_entity_name.is_none());
+                        issuing_entity_name = Some(value.clone());
+                    }
+                    ValueTag::Paper => {
+                        paper = true;
+                    }
+                    ValueTag::ConfirmingCopy => {
+                        confirming_copy = true;
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
-                    ContainerTag::Paper => {
-                        // TODO: is this right?
-                        return Submission::from_parts(parts);
-                    }
                     ContainerTag::Filer => {
                         let filer = Company::from_parts(parts)?;
                         filers.push(filer);
@@ -814,10 +876,6 @@ impl Submission {
                         assert!(filed_by.is_none());
                         filed_by = Some(Company::from_parts(parts)?);
                     }
-                    ContainerTag::ConfirmingCopy => {
-                        assert!(confirming_copy.is_none());
-                        confirming_copy = Some(Box::new(Submission::from_parts(parts)?));
-                    }
                     ContainerTag::Depositor => {
                         assert!(depositor.is_none());
                         depositor = Some(Company::from_parts(parts)?);
@@ -835,10 +893,10 @@ impl Submission {
         assert_eq!(public_document_count, documents.len());
 
         Ok(Submission {
-            accession_number,
-            filing_type,
+            accession_number: accession_number.unwrap(),
+            filing_type: filing_type.unwrap(),
             items,
-            filing_date,
+            filing_date: filing_date.unwrap(),
             date_of_filing_date_change,
             effectiveness_date,
             filers,
@@ -864,13 +922,17 @@ impl Submission {
             abs_asset_class,
             depositor_cik,
             sponsor_cik,
-            confirming_copy,
             category,
             registered_entity,
             depositor,
             securitizer,
             references_429,
             reporting_owners,
+            securitizer_cik,
+            issuing_entity_cik,
+            issuing_entity_name,
+            paper,
+            confirming_copy,
         })
     }
 }
