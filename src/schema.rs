@@ -2,8 +2,8 @@ use crate::document_tree::DocumentTree;
 use crate::document_tree::DocumentTree::ContainerNode;
 use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
+use crate::types::{parse_bool, MonthDayPair};
 use chrono::NaiveDate;
-use crate::types::{MonthDayPair, parse_bool};
 
 const DATE_FORMAT: &str = "%Y%m%d";
 
@@ -259,7 +259,7 @@ impl Filer {
                     ContainerTag::MailAddress => {
                         assert_eq!(None, mail_address);
                         mail_address = Some(Address::from_parts(parts)?)
-                    },
+                    }
                     ContainerTag::FormerCompany => {
                         let _fc = FormerCompany::from_parts(parts)?;
                         former_company.push(_fc);
@@ -457,16 +457,14 @@ impl SeriesAndCik {
                         cik = Some(value.clone());
                     }
                     _ => panic!("Unexpected: {:?}", &part),
-                }
-                DocumentTree::ContainerNode(tag, parts) => {
-                    match tag {
-                        ContainerTag::Series => {
-                            assert_eq!(None, series);
-                            series = Some(Series::from_parts(parts)?);
-                        }
-                        _ => panic!("Unexpected: {:?}", &part),
+                },
+                DocumentTree::ContainerNode(tag, parts) => match tag {
+                    ContainerTag::Series => {
+                        assert_eq!(None, series);
+                        series = Some(Series::from_parts(parts)?);
                     }
-                }
+                    _ => panic!("Unexpected: {:?}", &part),
+                },
 
                 _ => panic!("Unexpected: {:?}", &part),
             }
@@ -492,19 +490,17 @@ impl Merger {
 
         for part in parts {
             match &part {
-                ContainerNode(tag, parts) => {
-                    match tag {
-                        ContainerTag::AcquiringData => {
-                            assert_eq!(None, acquiring_data);
-                            acquiring_data = Some(SeriesAndCik::from_parts(parts)?)
-                        }
-                        ContainerTag::TargetData => {
-                            assert_eq!(None, target_data);
-                            target_data = Some(SeriesAndCik::from_parts(parts)?)
-                        }
-                        _ => panic!("Unexpected: {:?}", &part),
+                ContainerNode(tag, parts) => match tag {
+                    ContainerTag::AcquiringData => {
+                        assert_eq!(None, acquiring_data);
+                        acquiring_data = Some(SeriesAndCik::from_parts(parts)?)
                     }
-                }
+                    ContainerTag::TargetData => {
+                        assert_eq!(None, target_data);
+                        target_data = Some(SeriesAndCik::from_parts(parts)?)
+                    }
+                    _ => panic!("Unexpected: {:?}", &part),
+                },
                 _ => panic!("Unexpected: {:?}", &part),
             }
         }
@@ -537,9 +533,7 @@ impl SeriesAndClassesContracts {
             }
         }
 
-        Ok(SeriesAndClassesContracts {
-            series
-        })
+        Ok(SeriesAndClassesContracts { series })
     }
 }
 
@@ -565,9 +559,7 @@ impl MergerSeriesAndClassContracts {
             }
         }
 
-        Ok(MergerSeriesAndClassContracts {
-            mergers
-        })
+        Ok(MergerSeriesAndClassContracts { mergers })
     }
 }
 
@@ -587,11 +579,13 @@ impl SeriesAndClassesContractsData {
                 DocumentTree::ContainerNode(tag, parts) => match tag {
                     ContainerTag::ExistingSeriesAndClassesContracts => {
                         assert_eq!(None, existing_series_and_classes_contracts);
-                        existing_series_and_classes_contracts = Some(SeriesAndClassesContracts::from_parts(parts)?);
+                        existing_series_and_classes_contracts =
+                            Some(SeriesAndClassesContracts::from_parts(parts)?);
                     }
                     ContainerTag::MergerSeriesAndClassesContracts => {
                         assert_eq!(None, merger_series_and_classes_contracts);
-                        merger_series_and_classes_contracts = Some(MergerSeriesAndClassContracts::from_parts(parts)?);
+                        merger_series_and_classes_contracts =
+                            Some(MergerSeriesAndClassContracts::from_parts(parts)?);
                     }
                     _ => unimplemented!("{:?}", tag),
                 },
@@ -715,7 +709,8 @@ impl Submission {
                     }
                     ValueTag::EffectivenessDate => {
                         assert_eq!(None, effectiveness_date);
-                        effectiveness_date = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        effectiveness_date =
+                            Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
                     }
                     ValueTag::Period => {
                         assert_eq!(None, period);
@@ -750,7 +745,8 @@ impl Submission {
                     }
                     ValueTag::ReceivedDate => {
                         assert_eq!(None, received_date);
-                        received_date = Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
+                        received_date =
+                            Some(NaiveDate::parse_from_str(value, DATE_FORMAT).unwrap());
                     }
                     ValueTag::MaIIndividual => {
                         assert_eq!(None, ma_i_individual);
@@ -813,7 +809,8 @@ impl Submission {
                     }
                     ContainerTag::SeriesAndClassesContractsData => {
                         assert_eq!(None, series_and_classes_contracts_data);
-                        series_and_classes_contracts_data = Some(SeriesAndClassesContractsData::from_parts(parts)?);
+                        series_and_classes_contracts_data =
+                            Some(SeriesAndClassesContractsData::from_parts(parts)?);
                     }
                     ContainerTag::ReportingOwner => {
                         let reporting_owner = Filer::from_parts(parts)?;
@@ -887,7 +884,7 @@ impl Submission {
             depositor,
             securitizer,
             references_429,
-            reporting_owners
+            reporting_owners,
         })
     }
 }

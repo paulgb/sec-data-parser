@@ -18,6 +18,6 @@ pub fn parse_bool(v: &str) -> bool {
     match v {
         "N" => false,
         "Y" => true,
-        _ => panic!("h1")
+        _ => panic!("h1"),
     }
 }
