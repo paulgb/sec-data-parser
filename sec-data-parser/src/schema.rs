@@ -682,7 +682,7 @@ pub struct Submission {
     pub reporting_owners: Vec<Company>,
     pub issuer: Option<Company>,
     pub group_members: Vec<String>,
-    pub subject_company: Option<Company>,
+    pub subject_company: Vec<Company>,
     pub filed_by: Option<Company>,
     pub reference_462b: Option<String>,
     pub is_filer_a_new_registrant: Option<bool>,
@@ -736,7 +736,7 @@ impl Submission {
         let mut reporting_owners = Vec::new();
         let mut issuer = None;
         let mut group_members = Vec::new();
-        let mut subject_company = None;
+        let mut subject_company = Vec::new();
         let mut filed_by = None;
         let mut reference_462b = None;
         let mut is_filer_a_new_registrant = None;
@@ -949,8 +949,7 @@ impl Submission {
                         issuer = Some(Company::from_parts(parts)?);
                     }
                     ContainerTag::SubjectCompany => {
-                        assert!(subject_company.is_none());
-                        subject_company = Some(Company::from_parts(parts)?);
+                        subject_company.push(Company::from_parts(parts)?);
                     }
                     ContainerTag::FiledBy => {
                         assert!(filed_by.is_none());
