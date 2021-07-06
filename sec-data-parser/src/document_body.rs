@@ -1,7 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use uuencode::uudecode;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum DataType {
     Plaintext,
     Xml,
@@ -20,7 +21,7 @@ impl Display for DataType {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum DocumentBody {
     BinaryData(String, Vec<u8>),
     Text(String),
@@ -48,7 +49,7 @@ impl DocumentBody {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TypedData {
     pub data_type: DataType,
     pub body: DocumentBody,

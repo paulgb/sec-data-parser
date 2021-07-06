@@ -1,10 +1,11 @@
 use chrono::{Month, NaiveDate, NaiveDateTime};
 use num_traits::FromPrimitive;
+use serde::{Serialize, Deserialize};
 
 const DATE_FORMAT: &str = "%Y%m%d";
 const DATE_TIME_FORMAT: &str = "%Y%m%d:%H%M%S";
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct MonthDayPair(chrono::Month, u32);
 
 impl MonthDayPair {

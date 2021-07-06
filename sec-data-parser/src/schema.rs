@@ -5,8 +5,9 @@ use crate::error::Result;
 use crate::tag::{ContainerTag, ValueTag};
 use crate::types::{parse_bool, parse_date, parse_date_time, MonthDayPair};
 use chrono::{NaiveDate, NaiveDateTime};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct FilingValues {
     pub form_type: String,
     pub act: Option<String>,
@@ -55,7 +56,7 @@ impl FilingValues {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct CompanyData {
     pub conformed_name: String,
     pub cik: String,
@@ -125,7 +126,7 @@ impl CompanyData {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Address {
     pub street1: Option<String>,
     pub street2: Option<String>,
@@ -188,7 +189,7 @@ impl Address {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct FormerCompany {
     pub former_conformed_name: String,
     pub date_changed: NaiveDate,
@@ -223,7 +224,7 @@ impl FormerCompany {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Company {
     pub company_data: Option<CompanyData>,
     pub filing_values: Vec<FilingValues>,
@@ -292,7 +293,7 @@ impl Company {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Document {
     pub doc_type: String,
     pub sequence: u32,
@@ -351,7 +352,7 @@ impl Document {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct ClassContract {
     pub class_contract_id: String,
     pub class_contract_name: String,
@@ -393,7 +394,7 @@ impl ClassContract {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Series {
     pub owner_cik: Option<String>,
     pub series_id: String,
@@ -446,7 +447,7 @@ impl Series {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct AcquiringData {
     pub cik: String,
     pub series: Series,
@@ -478,7 +479,7 @@ impl AcquiringData {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct TargetData {
     pub cik: String,
     pub series: Vec<Series>,
@@ -509,7 +510,7 @@ impl TargetData {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Merger {
     pub acquiring_data: AcquiringData,
     pub target_data: Vec<TargetData>,
@@ -542,7 +543,7 @@ impl Merger {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct NewSeriesAndClassesContracts {
     pub owner_cik: Option<String>,
     pub new_series: Vec<Series>,
@@ -582,7 +583,7 @@ impl NewSeriesAndClassesContracts {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SeriesAndClassesContracts {
     pub series: Vec<Series>,
 }
@@ -608,7 +609,7 @@ impl SeriesAndClassesContracts {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct MergerSeriesAndClassContracts {
     pub mergers: Vec<Merger>,
 }
@@ -634,7 +635,7 @@ impl MergerSeriesAndClassContracts {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct SeriesAndClassesContractsData {
     pub existing_series_and_classes_contracts: Option<SeriesAndClassesContracts>,
     pub merger_series_and_classes_contracts: Option<MergerSeriesAndClassContracts>,
@@ -679,7 +680,7 @@ impl SeriesAndClassesContractsData {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct Submission {
     pub accession_number: String,
     pub filing_type: String,

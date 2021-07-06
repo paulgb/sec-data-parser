@@ -34,7 +34,10 @@ pub fn next_token(st: &str) -> Result<(Token, &str)> {
         }
     } else {
         let end_idx = st.find('<').unwrap();
-        (Token::RawText(st[..end_idx].trim().to_string()), &st[end_idx..])
+        (
+            Token::RawText(st[..end_idx].trim().to_string()),
+            &st[end_idx..],
+        )
     })
 }
 
