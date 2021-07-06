@@ -80,4 +80,11 @@ impl TypedData {
             }
         }
     }
+
+    pub fn to_bytes(&self) -> &[u8] {
+        match &self.body {
+            DocumentBody::BinaryData(_, b) => &b,
+            DocumentBody::Text(s) => s.as_bytes(),
+        }
+    }
 }
