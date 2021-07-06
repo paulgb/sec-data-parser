@@ -731,6 +731,7 @@ pub struct Submission {
     pub deletion: bool,
     pub correction: bool,
     pub sros: Option<String>,
+    pub previous_accession_number: Option<String>,
 }
 
 impl Submission {
@@ -786,6 +787,7 @@ impl Submission {
         let mut deletion = false;
         let mut correction = false;
         let mut sros = None;
+        let mut previous_accession_number = None;
 
         for part in parts {
             match &part {
@@ -941,6 +943,9 @@ impl Submission {
                     ValueTag::Sros => {
                         sros = Some(value.clone());
                     }
+                    ValueTag::PreviousAccessionNumber => {
+                        previous_accession_number = Some(value.clone());
+                    }
                     _ => panic!("Unexpected: {:?}", &part),
                 },
                 DocumentTree::ContainerNode(tag, parts) => match tag {
@@ -1041,6 +1046,7 @@ impl Submission {
             deletion,
             correction,
             sros,
+            previous_accession_number,
         })
     }
 }
